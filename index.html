@@ -1,0 +1,3883 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书 - 树洞帖子</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            background: #f8f8f8;
+            line-height: 1.6;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: linear-gradient(135deg, #FF2442 0%, #FF6B6B 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(255, 36, 66, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-title {
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-stats {
+            display: flex;
+            gap: 30px;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 12px;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* 原始帖子区域 */
+        .original-post-section {
+            margin-bottom: 50px;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .original-post-header {
+            margin-bottom: 20px;
+        }
+
+        .original-post-badge {
+            background: linear-gradient(135deg, #FF2442 0%, #FF6B6B 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .original-post-card {
+            background: linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 4px solid #FF2442;
+        }
+
+        .original-post-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .original-post-content {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .original-post-stats {
+            font-size: 13px;
+            color: #FF2442;
+            font-weight: 600;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 36, 66, 0.2);
+        }
+
+        /* 树洞帖子网格 */
+        .tree-hole-posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        /* 帖子卡片 */
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(255, 36, 66, 0.15);
+        }
+
+        /* 帖子头部 */
+        .post-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF2442 0%, #FF6B6B 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .username {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .identity-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-student {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .badge-parent {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        /* 帖子内容 */
+        .post-content {
+            padding: 16px;
+        }
+
+        .post-text {
+            font-size: 15px;
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 6;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .post-text.expanded {
+            -webkit-line-clamp: unset;
+        }
+
+        /* 帖子底部互动栏 */
+        .post-actions {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: #FF2442;
+        }
+
+        .action-btn.liked {
+            color: #FF2442;
+        }
+
+        .action-icon {
+            font-size: 18px;
+        }
+
+        .view-count {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 评论区域 */
+        .comments-section {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .comments-header {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .comment-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.2s;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-item.level-1 {
+            padding-left: 0;
+        }
+
+        .comment-item.level-2 {
+            margin-left: 48px;
+            padding: 10px 0 10px 12px;
+            background: #fafafa;
+            border-radius: 8px;
+            border-bottom: none;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .comment-item.level-3 {
+            margin-left: 96px;
+            padding: 10px 0 10px 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border-bottom: none;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .comment-item.level-4 {
+            margin-left: 144px;
+            padding: 10px 0 10px 12px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            border-bottom: none;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .comment-item.level-5 {
+            margin-left: 192px;
+            padding: 10px 0 10px 12px;
+            background: #ebebeb;
+            border-radius: 8px;
+            border-bottom: none;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .comment-main {
+            display: flex;
+            gap: 12px;
+        }
+
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .comment-item.level-2 .comment-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 14px;
+        }
+
+        .comment-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .comment-username {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .author-badge {
+            background: #FF2442;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .comment-content {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+
+        .reply-to {
+            color: #576B95;
+            font-weight: 500;
+        }
+
+        .comment-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .comment-action {
+            font-size: 12px;
+            color: #999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .comment-action:hover {
+            color: #FF2442;
+        }
+
+        .comment-action.liked {
+            color: #FF2442;
+        }
+
+        .like-icon {
+            font-size: 14px;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar-stats {
+                display: none;
+            }
+        }
+
+        /* 加载动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .post-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .post-card:nth-child(1) { animation-delay: 0.1s; }
+        .post-card:nth-child(2) { animation-delay: 0.2s; }
+        .post-card:nth-child(3) { animation-delay: 0.3s; }
+        .post-card:nth-child(4) { animation-delay: 0.4s; }
+        .post-card:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-title">
+                <span>📱</span>
+                <span>小红书 - 树洞帖子</span>
+            </div>
+            <div class="navbar-stats">
+                <div class="stat-item">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">原始帖子</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">13</div>
+                    <div class="stat-label">树洞帖</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">81</div>
+                    <div class="stat-label">评论</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        
+        <!-- 原始帖子区域 -->
+        <div class="original-post-section">
+            <div class="original-post-header">
+                <span class="original-post-badge">原始帖子 #1</span>
+            </div>
+            <div class="original-post-card">
+                <div class="original-post-title">调戏小猫咪被打，如何判断要不要打狂犬疫苗</div>
+                <div class="original-post-content">事情的起因是这样的，调戏一只在休息的小猫咪被打了。然后呢，我就在纠结要不要去打这个疫苗。纠结的原因呢，小猫咪虽然是外面的，但是它是寺庙所投喂养的小猫咪，期间它表现非常正常的，没有发病迹象，理论上来讲呢，它携带狂犬病毒的可能性就已经很低了。又不在发病期，所以说它的概率是非常低的。所以最初我是不太想打的。但是经过所有伙伴们和朋友的劝说，建议我还是打一个。所以呢，我就开始寻找可以接种狂犬疫苗的医院和注射点。发现现在整体都没有进口的疫苗了，都是国产的。最终用了211的打法，一共打4针，还有两个针要打</div>
+                <div class="original-post-stats">
+                    生成了 4 个树洞帖
+                </div>
+            </div>
+
+            <!-- 树洞帖子网格 -->
+            <div class="tree-hole-posts-grid">
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">👨‍👩‍👧</div>
+                        <div class="user-info">
+                            <div class="username">
+                                家长用户1-1
+                                <span class="identity-badge badge-parent">
+                                    家长
+                                </span>
+                            </div>
+                            <div class="post-time">1小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">孩子逗寺庙门口的流浪猫被抓伤了！猫看着挺健康，但朋友都说必须打狂犬疫苗，现在只能打国产的211程序四针，真担心效果啊！</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>456</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>234</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>9</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 1234 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 9 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_2038</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我去年也被类似情况抓过，打了国产211程序，全程无不良反应。疾控中心说只要按时打完四针，保护率足够高。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_1024</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_2038:</span>
+                                        
+                                        真的吗？可我看网上说进口的才靠谱，国产的抗体产生慢...
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_2038</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @P_1024:</span>
+                                        
+                                        查过文献，国产狂犬疫苗中和抗体阳转率98%以上，WHO也预认证了，别被营销号吓到。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_5567</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_2038:</span>
+                                        
+                                        理解阿姨的担心，我当时也纠结半天，但医生说暴露后处置不能赌概率。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_8891</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我们家孩子三年前在寺院被猫抓伤，当时猫健康且有固定投喂人，医生评估为II级暴露，只清洗伤口没打针，至今无恙。关键看是否破皮出血。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_3340</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        211打法第二针是不是特别疼？我下周打第二针有点慌！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_7721</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_3340:</span>
+                                        
+                                        还好啦，比打HPV轻多了，冰敷一下就行！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">7分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_3340</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_7721:</span>
+                                        
+                                        那我放心了，主要是怕手臂肿成馒头哈哈
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">8分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_6012</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我家附近社区医院还有进口疫苗库存，可以问问当地疾控有没有预留针，别全信网上说的断供。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">9分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">🎓</div>
+                        <div class="user-info">
+                            <div class="username">
+                                留学生用户1-2
+                                <span class="identity-badge badge-student">
+                                    学生
+                                </span>
+                            </div>
+                            <div class="post-time">2小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">调戏寺庙猫反被揍，伤口很小但朋友逼我去打狂犬疫苗。现在国产211程序打了一针，后面三针要跑三次医院，好麻烦啊……</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>579</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>323</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>5</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 1801 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 5 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_9012</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        别嫌麻烦！我漏打第三针被疾控追着打电话，狂犬病潜伏期不定，规范接种才能安心。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_2233</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        孩子，寺庙猫虽有人喂但仍是流浪动物，我国狂犬病疫区未消除，WHO建议所有III级暴露必须全程接种，别省这点时间。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_1189</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        调戏猫还委屈上了？活该被打还得挨四针，记住了：猫不是玩具！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_4056</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_1189:</span>
+                                        
+                                        谁说我调戏了？我只是想摸摸它！结果它突然炸毛抓我……
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_1189</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_4056:</span>
+                                        
+                                        休息的猫别打扰是常识好吗？你这属于自找的暴露风险！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">🎓</div>
+                        <div class="user-info">
+                            <div class="username">
+                                留学生用户1-3
+                                <span class="identity-badge badge-student">
+                                    学生
+                                </span>
+                            </div>
+                            <div class="post-time">3小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">寺庙投喂的猫抓了我 手指破了点皮 没流血 要打狂犬疫苗吗 医生说打国产211四针 但我看猫活蹦乱跳的很健康 啊好纠结要不要继续打</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>702</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>412</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>7</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 2368 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 7 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_6655</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        破皮就算III级暴露了，哪怕猫看起来健康。我打完四针花了八百多，但睡得踏实。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_4420</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        根据《狂犬病预防控制技术指南》，皮肤破损接触动物唾液即需全程接种。国产疫苗经国家药监局批准，效力有保障，别因小失大。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_8832</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        打！我室友没打结果半夜做噩梦惊醒，精神损失更大！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_9901</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_8832:</span>
+                                        
+                                        +1 狂犬病死亡率100% 这玩意真不能赌
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_1023</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_8832:</span>
+                                        
+                                        而且现在国产疫苗供应稳定，比以前方便多了
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_7765</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我们县去年有例被家猫抓伤未接种发病的，猫半年后还活着，说明潜伏期可能很长，千万别心存侥幸。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_5050</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        其实打完第一针就后悔没早点打——因为根本不疼！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">7分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">👨‍👩‍👧</div>
+                        <div class="user-info">
+                            <div class="username">
+                                家长用户1-4
+                                <span class="identity-badge badge-parent">
+                                    家长
+                                </span>
+                            </div>
+                            <div class="post-time">4小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">急！孩子在古寺游玩时被长期投喂的流浪猫抓伤，猫行为正常，但伤口有齿痕。现在医院只有国产狂犬疫苗，用211程序接种，后续还要打三针，有必要吗？</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>825</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>501</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>5</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 2935 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 5 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_2244</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        有齿痕就是III级暴露，必须打！国产211程序是国家推荐方案，我和同学都打过，抗体检测达标。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_9988</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        作为疾控工作人员家属提醒：我国狂犬病主要传染源是犬猫，即使外观健康，病毒可能在唾液中存在。全程接种是唯一有效预防手段。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_3310</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @P_9988:</span>
+                                        
+                                        谢谢您！刚带孩子打完第二针，手臂有点红肿，正常吗？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_9988</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @P_3310:</span>
+                                        
+                                        正常反应，48小时内冷敷即可，注意别抓挠。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_6789</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        阿姨别犹豫！我打完四针还能撸猫（当然是健康的家猫）！安全第一呀～
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- 原始帖子区域 -->
+        <div class="original-post-section">
+            <div class="original-post-header">
+                <span class="original-post-badge">原始帖子 #2</span>
+            </div>
+            <div class="original-post-card">
+                <div class="original-post-title">开业八年的闵行网红店，官宣闭店！</div>
+                <div class="original-post-content">开业八年的闵行网红店，官宣闭店！你觉得它何时能重开？</div>
+                <div class="original-post-stats">
+                    生成了 5 个树洞帖
+                </div>
+            </div>
+
+            <!-- 树洞帖子网格 -->
+            <div class="tree-hole-posts-grid">
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">👨‍👩‍👧</div>
+                        <div class="user-info">
+                            <div class="username">
+                                家长用户2-1
+                                <span class="identity-badge badge-parent">
+                                    家长
+                                </span>
+                            </div>
+                            <div class="post-time">1小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">孩子从小吃到大的闵行那家网红店突然宣布闭店了！八年老店说关就关，以后放学接他还能去哪坐坐？</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>456</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>234</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>7</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 1234 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 7 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_2048</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我高中三年午休都去那儿写作业，咖啡续命神器！现在闭店了只能回教室啃面包了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_3072</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_2048:</span>
+                                        
+                                        你是不是在七宝中学？我家孩子也在那儿，总听他说那家店安静又方便。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_2048</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @P_3072:</span>
+                                        
+                                        对！就是七宝对面那家，老板还记得我点单习惯呢。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_4096</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_2048:</span>
+                                        
+                                        听说是因为房租涨到3万一个月？这地段真卷不动了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_5120</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        这种社区小店最怕租金暴涨，希望不是永久关停。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_6144</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        查了下工商信息，法人没注销，可能只是暂时歇业调整。别太慌。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_7168</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        唉，连个告示都没贴清楚，只发了个公众号就没了，太突然了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">7分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">🎓</div>
+                        <div class="user-info">
+                            <div class="username">
+                                留学生用户2-2
+                                <span class="identity-badge badge-student">
+                                    学生
+                                </span>
+                            </div>
+                            <div class="post-time">2小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">闵行那家网红店闭店了，我的周末自习据点没了，现在图书馆又要抢座了……</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>579</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>323</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>6</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 1801 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 6 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_9216</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        它家拿铁其实一般，主要是位置好+免费Wi-Fi，现在全泡汤了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_8192</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_9216:</span>
+                                        
+                                        你根本不懂！老板会帮我热牛奶不加糖，这种细节现在去哪找？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_9216</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_8192:</span>
+                                        
+                                        行吧行吧，等它重开我请你喝一杯，前提是它真能回来。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-4">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_8192</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_9216:</span>
+                                        
+                                        我打赌三个月内回不来，房东已经挂新招租广告了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_10240</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我家孩子也常去，说是店里阿姨会帮忙看包，安全又省心。现在真不放心让他乱跑。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_11264</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        有没有人建个群？一起蹲重开消息！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">🎓</div>
+                        <div class="user-info">
+                            <div class="username">
+                                留学生用户2-3
+                                <span class="identity-badge badge-student">
+                                    学生
+                                </span>
+                            </div>
+                            <div class="post-time">3小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">开业八年的闵行网红店 宣布闭店了 我的生日蛋糕每年都订它家 现在不知道找谁做了</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>702</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>412</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>8</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 2368 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 8 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_13312</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        可以试试古北那家‘甜时记’，也是家庭作坊式，奶油用的动物奶油，孩子吃了不过敏。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_14336</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @P_13312:</span>
+                                        
+                                        甜时记要提前两周预约！我上次生日差点没订上。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_15360</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @P_13312:</span>
+                                        
+                                        我在群里分享过他们微信，需要的话私我。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_16384</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @P_13312:</span>
+                                        
+                                        其实网红店闭店挺正常的，八年已经算长寿了，别太伤感啦。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_17408</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        它家草莓蛋糕真的绝，现在想想都流口水……
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_18432</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        建议保存好之前的订单记录，万一涉及预付卡退费还能用上。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_19456</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        老板最后一条朋友圈说‘江湖再见’，感觉不是永别！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">7分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_20480</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        希望是真的‘再见’，而不是‘再也不见’。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">8分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">👨‍👩‍👧</div>
+                        <div class="user-info">
+                            <div class="username">
+                                家长用户2-4
+                                <span class="identity-badge badge-parent">
+                                    家长
+                                </span>
+                            </div>
+                            <div class="post-time">4小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">闵行这家开了八年的网红店突然闭店，连个缓冲期都没有！孩子攒的积分卡怎么办？</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>825</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>501</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>3</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 2935 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 3 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_22528</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我昨天去问了，店员说积分可转为电子券，月底前还能在小程序里兑换周边。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_23552</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        周边有什么用？孩子想要的是他最爱的抹茶千层啊！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_24576</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        别指望了，估计老板连夜扛着咖啡机跑路了，哈哈（不是）。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">🎓</div>
+                        <div class="user-info">
+                            <div class="username">
+                                留学生用户2-5
+                                <span class="identity-badge badge-student">
+                                    学生
+                                </span>
+                            </div>
+                            <div class="post-time">5小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">从高一到大四 每次回家都要去闵行那家网红店坐一坐 现在它闭店了 我的青春好像也结束了</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>948</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>590</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>7</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 3502 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 7 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_26624</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        懂你，我在那儿做过半年兼职，老板教我拉花，现在杯子还在书架上放着。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_25600</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_26624:</span>
+                                        
+                                        真的吗？我也想去打工，结果刚联系上就闭店了……
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_27648</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_25600:</span>
+                                        
+                                        听说老板要去开烘焙培训工作室，可能换个形式回归？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-4">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_25600</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_27648:</span>
+                                        
+                                        在哪？学费贵吗？我现在就想报名！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_28672</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        孩子每次考完试都要去那儿庆祝，现在只能在家吃泡面了，唉。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_29696</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        不如我们众筹请老板回来？一人出50够不够？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_30720</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        其实社区商业体更新快是常态，建议培养孩子适应变化的能力，比怀念一家店更重要。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">7分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- 原始帖子区域 -->
+        <div class="original-post-section">
+            <div class="original-post-header">
+                <span class="original-post-badge">原始帖子 #3</span>
+            </div>
+            <div class="original-post-card">
+                <div class="original-post-title">看了谷爱凌才知道，努力是最没用的。</div>
+                <div class="original-post-content">刷到谷爱凌最新纪录片《再出发》才发现，努力只是她成功道路上最不值得一提的入场券，她的家庭托举、思维方式、品格心态都是缺一不可的。人人都能咬牙坚持，可只有少数人，能在低谷里站稳、在喧嚣中笃定、在巅峰后再出发。这才是谷爱凌最顶级的“成功方法论”。</div>
+                <div class="original-post-stats">
+                    生成了 4 个树洞帖
+                </div>
+            </div>
+
+            <!-- 树洞帖子网格 -->
+            <div class="tree-hole-posts-grid">
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">👨‍👩‍👧</div>
+                        <div class="user-info">
+                            <div class="username">
+                                家长用户3-1
+                                <span class="identity-badge badge-parent">
+                                    家长
+                                </span>
+                            </div>
+                            <div class="post-time">1小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">谷爱凌在纪录片《再出发》里说努力只是入场券，我家孩子每天刷题到凌晨，可连个竞赛奖都没拿过，差距真的只是努力吗？</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>456</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>234</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>7</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 1234 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 7 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_2048</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我练滑雪三年才进省队，但谷爱凌13岁就决定专注自由式。不是努力没用，是方向和资源太关键了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_3072</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_2048:</span>
+                                        
+                                        资源？我们普通家庭连雪场门票都嫌贵，怎么比？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_2048</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @P_3072:</span>
+                                        
+                                        所以我现在专注校内科创比赛，至少这条路不用买装备。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_4096</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_2048:</span>
+                                        
+                                        有些人的起点是别人的天花板，承认这点很难吗？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_5120</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        纪录片《再出发》确实颠覆认知，光吃苦真不够。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_6144</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我在美高时见过太多‘努力型选手’，GPA 4.0却申不到TOP30，缺的是规划和故事线啊！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_7168</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        看完《再出发》，我默默删掉了给孩子报的第5个培训班。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">7分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">🎓</div>
+                        <div class="user-info">
+                            <div class="username">
+                                留学生用户3-2
+                                <span class="identity-badge badge-student">
+                                    学生
+                                </span>
+                            </div>
+                            <div class="post-time">2小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">谷爱凌在《再出发》里说低谷时靠心态稳住，而我期中崩盘后连自习室都不敢进，果然顶级选手的思维是另一套系统。</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>579</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>323</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>6</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 1801 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 6 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_9216</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        她妈妈谷燕是北大+斯坦福，从小教她目标拆解。我们连职业规划课都没有，怎么学？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_8192</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_9216:</span>
+                                        
+                                        我建了个学习心态互助群，要不要一起练？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-3">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_9216</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_8192:</span>
+                                        
+                                        拉我！刚被微积分打击完，急需同类取暖。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-4">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_8192</span>
+                                        
+                                        <span class="author-badge">作者</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_9216:</span>
+                                        
+                                        群号私你了，咱们从错题复盘开始吧。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_10240</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        普通孩子能学到她的韧性就很好了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_11264</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        别神话她了，她摔断锁骨那年我也在病床上背单词，只是没人拍纪录片而已。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">🎓</div>
+                        <div class="user-info">
+                            <div class="username">
+                                留学生用户3-3
+                                <span class="identity-badge badge-student">
+                                    学生
+                                </span>
+                            </div>
+                            <div class="post-time">3小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">纪录片 再出发 里谷爱凌说巅峰后再出发最难 我连第一次出发都卡在雅思6.5 她的时间管理是超能力吧</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>702</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>412</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>8</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 2368 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 8 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_13312</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        她一天练滑雪+学AP+做慈善，是因为有团队帮她过滤琐事。我们得自己抢考位、填网申、回邮件，时间早碎成渣了！
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_14336</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_13312:</span>
+                                        
+                                        上次雅思口语考位秒光，我刷新到手机发烫，她在瑞士训练营边滑边练口语吧？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_15360</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_13312:</span>
+                                        
+                                        人家妈妈直接联系考官安排专场，我们还在蹲放位提醒呢。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-2">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_16384</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        <span class="reply-to">回复 @S_13312:</span>
+                                        
+                                        别说了，我连模考都要省着买，她怕是不知道题库要花钱吧。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">4分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_17408</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        看了《再出发》，终于理解为什么不能只逼孩子努力了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">5分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_18432</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我研究过她的时间表：核心任务不超过3件，其余全外包。建议大家先砍掉无效努力，比如盲目刷题。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">6分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_19456</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        努力有用的话，富士康流水线早出十个谷爱凌了。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">7分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_20480</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        作为留学顾问，我见过太多家庭把‘努力’当万能药。谷爱凌的成功模型是：顶尖资源×精准策略×心理资本，缺一不可。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">8分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="post-card">
+                    <!-- 帖子头部 -->
+                    <div class="post-header">
+                        <div class="avatar">👨‍👩‍👧</div>
+                        <div class="user-info">
+                            <div class="username">
+                                家长用户3-4
+                                <span class="identity-badge badge-parent">
+                                    家长
+                                </span>
+                            </div>
+                            <div class="post-time">4小时前</div>
+                        </div>
+                    </div>
+
+                    <!-- 帖子内容 -->
+                    <div class="post-content">
+                        <div class="post-text">纪录片《再出发》里谷爱凌提到‘在喧嚣中笃定’，可我家孩子一模失利就被亲戚说‘不是读书料’，这种环境怎么培养定力？</div>
+                    </div>
+
+                    <!-- 互动栏 -->
+                    <div class="post-actions">
+                        <div class="action-buttons">
+                            <div class="action-btn">
+                                <span class="action-icon">❤️</span>
+                                <span>825</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">⭐</span>
+                                <span>501</span>
+                            </div>
+                            <div class="action-btn">
+                                <span class="action-icon">💬</span>
+                                <span>3</span>
+                            </div>
+                        </div>
+                        <div class="view-count">👁️ 2935 浏览</div>
+                    </div>
+
+                    <!-- 评论区域 -->
+                    
+                    <div class="comments-section">
+                        <div class="comments-header">
+                            共 3 条评论
+                        </div>
+
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_22528</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        我屏蔽了所有亲戚群，只留学校论坛。有时候孤独点，反而能听见自己的声音。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">1分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">👨‍👩‍👧</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">P_23552</span>
+                                        
+                                        <span class="identity-badge badge-parent">
+                                            家长
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        建议建立‘成就清单’：把孩子每次小进步记录下来，在外界质疑时拿出来看。谷爱凌妈妈就给她做过十年成长档案。
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">2分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comment-item level-1">
+                            <div class="comment-main">
+                                <div class="comment-avatar">🎓</div>
+                                <div class="comment-body">
+                                    <div class="comment-header">
+                                        <span class="comment-username">S_24576</span>
+                                        
+                                        <span class="identity-badge badge-student">
+                                            学生
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        
+                                        等你家亲戚知道谷爱凌也考过不及格，或许就闭嘴了？
+                                    </div>
+                                    <div class="comment-footer">
+                                        <span class="comment-time">3分钟前</span>
+                                        <div class="comment-actions">
+                                            <div class="comment-action" data-likes="">
+                                                <span class="like-icon">♡</span>
+                                                <span class="like-count"></span>
+                                            </div>
+                                            <div class="comment-action">
+                                                <span>回复</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        <p>🎨 小红书风格树洞帖子展示</p>
+        <p>生成时间: 2026-03-05 17:09:07</p>
+    </div>
+
+    <script>
+        // 点击帖子展开/收起内容
+        document.querySelectorAll('.post-text').forEach(text => {
+            text.addEventListener('click', function() {
+                this.classList.toggle('expanded');
+            });
+        });
+
+        // 帖子点赞动画
+        document.querySelectorAll('.post-actions .action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this.querySelector('.action-icon').textContent === '❤️') {
+                    this.classList.toggle('liked');
+                    const count = this.querySelector('span:last-child');
+                    const currentCount = parseInt(count.textContent);
+                    count.textContent = this.classList.contains('liked') ? currentCount + 1 : currentCount - 1;
+                }
+            });
+        });
+
+        // 评论点赞功能
+        document.querySelectorAll('.comment-action').forEach(action => {
+            action.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const likeIcon = this.querySelector('.like-icon');
+                if (likeIcon) {
+                    this.classList.toggle('liked');
+                    const likeCount = this.querySelector('.like-count');
+                    const currentCount = parseInt(likeCount.textContent);
+
+                    if (this.classList.contains('liked')) {
+                        likeIcon.textContent = '♥';
+                        likeCount.textContent = currentCount + 1;
+                    } else {
+                        likeIcon.textContent = '♡';
+                        likeCount.textContent = currentCount - 1;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
